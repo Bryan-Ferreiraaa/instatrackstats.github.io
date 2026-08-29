@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Contador de Seguidores do Instagram</title>
+
+  <!-- Odometer -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/themes/odometer-theme-default.min.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #ffffff;
+      color: #0d0d0d;
+      font-family: Arial, Helvetica, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    h1.main-title {
+      font-size: 2.8rem;
+      font-weight: normal;
+      margin-top: 15px;
+      margin-bottom: 35px;
+    }
+
+    .channel-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 40px;
+    }
+
+    .avatar {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #222;
+      display: none;
+      flex-shrink: 0;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      border-bottom: 2px solid #555;
+      padding-bottom: 8px;
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .search-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #000;
+      font-size: 1.8rem;
+      width: 100%;
+    }
+
+    .search-box input::placeholder {
+      color: #999;
+    }
+
+    .search-icon {
+      font-size: 1.8rem;
+      color: #ccc;
+      cursor: pointer;
+      padding: 0 8px;
+      user-select: none;
+    }
+
+    .search-icon:hover {
+      color: #000;
+    }
+
+    .status {
+      min-height: 24px;
+      margin-top: -20px;
+      margin-bottom: 10px;
+      color: #777;
+      font-size: 0.95rem;
+    }
+
+    .status.error {
+      color: #d00;
+    }
+
+    .subscriber-count {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 8rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin-bottom: 35px;
+      min-height: 130px;
+      line-height: 130px;
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 25px;
+    }
+
+    .profile-name {
+      font-size: 1.45rem;
+      font-weight: bold;
+    }
+
+    .profile-username {
+      font-size: 1.1rem;
+      color: #777;
+    }
+
+    .verified {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #3897f0;
+      color: #fff;
+      font-size: 12px;
+      margin-left: 5px;
+      vertical-align: middle;
+    }
+
+    .subtitle {
+      font-size: 1.3rem;
+      color: #777;
+      margin-bottom: 30px;
+    }
+
+    .subtitle a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+
+    .subtitle a:hover {
+      text-decoration: underline;
+    }
+
+    .instagram-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: transparent;
+      border: none;
+      color: #e1306c;
+      font-size: 1.4rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 45px;
+      text-decoration: none;
+    }
+
+    .instagram-icon {
+      background: #e1306c;
+      color: #fff;
+      font-size: 0.85rem;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    .description {
+      color: #888;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      max-width: 850px;
+    }
+
+    .description p + p {
+      margin-top: 8px;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 25px 15px;
+      }
+
+      h1.main-title {
+        font-size: 2rem;
+        margin-bottom: 25px;
+      }
+
+      .channel-header {
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      .avatar {
+        width: 90px;
+        height: 90px;
+      }
+
+      .search-box input {
+        font-size: 1.35rem;
+      }
+
+      .subscriber-count {
+        font-size: 4.2rem;
+        min-height: 90px;
+        line-height: 90px;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+      }
+
+      .description {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1 class="main-title">Contador de Seguidores</h1>
+
+  <!-- Foto + caixa de pesquisa -->
+  <div class="channel-header">
+    <img
+      src=""
+      alt="Foto do perfil do Instagram"
+      class="avatar"
+      id="canal-pfp"
+    >
+
+    <div class="search-box">
+      <input
+        type="text"
+        id="input-id"
+        value="leomessi"
+        placeholder="Nome ou usuário do Instagram"
+        autocomplete="off"
+        spellcheck="false"
+      >
+
+      <span
+        class="search-icon"
+        id="search-button"
+        title="Pesquisar"
+        role="button"
+        tabindex="0"
+      >&#128269;</span>
+    </div>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <!-- Contador -->
+  <div class="subscriber-count odometer" id="inscritos">0</div>
+
+  <!-- Nome e usuário encontrados -->
+  <div class="profile-info" id="profile-info" style="display:none;">
+    <div class="profile-name" id="profile-name"></div>
+    <div class="profile-username" id="profile-username"></div>
+  </div>
+
+  <div class="subtitle">
+    Contador de seguidores do Instagram em tempo real.
+  </div>
+
+  <a
+    href="#"
+    id="instagramLink"
+    target="_blank"
+    rel="noopener noreferrer"
+    class="instagram-btn"
+  >
+    <span class="instagram-icon">Instagram</span>
+    Abrir perfil
+  </a>
+
+  <div class="description">
+    <p>
+      Consulte o perfil do Instagram e acompanhe a quantidade de seguidores
+      atualizada pela API.
+    </p>
+    <p>
+      A pesquisa usa o primeiro resultado retornado pelo Mixerno Space.
+    </p>
+  </div>
+
+  <!-- Odometer -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/odometer.min.js"></script>
+
+  <script>
+    /*
+     * ============================================================
+     * CONFIGURAÇÃO DAS APIs
+     * ============================================================
+     *
+     * 1) O usuário digita um nome/usuário.
+     *
+     * 2) Pesquisamos no Mixerno:
+     *    https://mixerno.space/api/instagram-user-counter/search/USUARIO
+     *
+     * 3) Pegamos SEMPRE o primeiro resultado:
+     *    list[0][0] = nome
+     *    list[0][1] = avatar
+     *    list[0][2] = username
+     *
+     * 4) Usamos o username encontrado na Instastatistics:
+     *    https://instastatistics.com/api/user/USUARIO
+     *
+     * 5) O contador usa:
+     *    followers
+     */
+
+    const MIXERNO_SEARCH_API =
+      "https://mixerno.space/api/instagram-user-counter/search/";
+
+    const INSTASTATISTICS_API =
+      "https://instastatistics.com/api/user/";
+
+    // Intervalo de atualização da contagem.
+    // 2000 = 2 segundos.
+    const INTERVALO_ATUALIZACAO = 2000;
+
+    let usuarioAtual = "";
+    let intervaloId = null;
+    let odometerInstancia = null;
+    let buscaEmAndamento = false;
+
+    /*
+     * Inicializa o Odometer.
+     */
+    function inicializarOdometer() {
+      const elemento = document.getElementById("inscritos");
+
+      if (!elemento || odometerInstancia) {
+        return;
+      }
+
+      odometerInstancia = new Odometer({
+        el: elemento,
+        value: 0,
+        format: "(,ddd)",
+        theme: "default"
+      });
+
+      odometerInstancia.render();
+    }
+
+    /*
+     * Atualiza o número mostrado no contador.
+     */
+    function animarSeguidores(valor) {
+      const numero = Number(valor);
+
+      if (!Number.isFinite(numero)) {
+        return;
+      }
+
+      if (!odometerInstancia) {
+        inicializarOdometer();
+      }
+
+      if (odometerInstancia) {
+        odometerInstancia.update(Math.floor(numero));
+      }
+    }
+
+    /*
+     * Mostra mensagem de status.
+     */
+    function mostrarStatus(mensagem, erro = false) {
+      const status = document.getElementById("status");
+
+      status.textContent = mensagem;
+      status.classList.toggle("error", erro);
+    }
+
+    /*
+     * Limpa o intervalo anterior.
+     */
+    function pararAtualizacao() {
+      if (intervaloId !== null) {
+        clearInterval(intervaloId);
+        intervaloId = null;
+      }
+    }
+
+    /*
+     * ============================================================
+     * BUSCA DO MIXERNO
+     * ============================================================
+     *
+     * IMPORTANTE:
+     * O primeiro resultado é usado exatamente como você pediu.
+     *
+     * Exemplo:
+     *
+     * list[0] = [
+     *   "Leo Messi",
+     *   "https://...avatar...",
+     *   "im.messian"
+     * ]
+     *
+     * Portanto:
+     * nome     = list[0][0]
+     * avatar   = list[0][1]
+     * username = list[0][2]
+     */
+    async function buscarUsuarioInstagram(termo) {
+      const url =
+        MIXERNO_SEARCH_API + encodeURIComponent(termo);
+
+      const resposta = await fetch(url, {
+        method: "GET",
+        cache: "no-store"
+      });
+
+      if (!resposta.ok) {
+        throw new Error(
+          "A busca no Mixerno retornou HTTP " + resposta.status
+        );
+      }
+
+      const dados = await resposta.json();
+
+      if (
+        !dados ||
+        !Array.isArray(dados.list) ||
+        dados.list.length === 0
+      ) {
+        throw new Error("Nenhum usuário encontrado.");
+      }
+
+      // SEMPRE o primeiro resultado.
+      const primeiro = dados.list[0];
+
+      if (!Array.isArray(primeiro) || primeiro.length < 3) {
+        throw new Error("Formato inesperado na resposta do Mixerno.");
+      }
+
+      return {
+        nome: primeiro[0] || "",
+        avatar: primeiro[1] || "",
+        username: primeiro[2] || ""
+      };
+    }
+
+    /*
+     * ============================================================
+     * INSTASTATISTICS
+     * ============================================================
+     *
+     * Exemplo:
+     * https://instastatistics.com/api/user/im.messian
+     *
+     * O contador usa somente:
+     * dados.followers
+     */
+    async function obterDadosInstastatistics() {
+      if (!usuarioAtual) {
+        return;
+      }
+
+      const url =
+        INSTASTATISTICS_API +
+        encodeURIComponent(usuarioAtual);
+
+      try {
+        const resposta = await fetch(url, {
+          method: "GET",
+          cache: "no-store"
+        });
+
+        if (!resposta.ok) {
+          throw new Error(
+            "Instastatistics retornou HTTP " + resposta.status
+          );
+        }
+
+        const dados = await resposta.json();
+
+        if (
+          !dados ||
+          typeof dados.followers === "undefined"
+        ) {
+          throw new Error(
+            "A resposta não contém o campo followers."
+          );
+        }
+
+        const seguidores = Number(dados.followers);
+
+        if (!Number.isFinite(seguidores)) {
+          throw new Error(
+            "O campo followers não contém um número válido."
+          );
+        }
+
+        animarSeguidores(seguidores);
+
+        mostrarStatus(
+          "Atualizado agora • " +
+          new Date().toLocaleTimeString("pt-BR")
+        );
+
+      } catch (erro) {
+        console.error(
+          "Erro ao consultar Instastatistics:",
+          erro
+        );
+
+        mostrarStatus(
+          "Não foi possível atualizar a contagem.",
+          true
+        );
+      }
+    }
+
+    /*
+     * ============================================================
+     * SELECIONA O USUÁRIO
+     * ============================================================
+     */
+    async function mudarUsuario() {
+      if (buscaEmAndamento) {
+        return;
+      }
+
+      const input = document.getElementById("input-id");
+      const termo = input.value.trim();
+
+      if (!termo) {
+        mostrarStatus("Digite um usuário do Instagram.", true);
+        return;
+      }
+
+      buscaEmAndamento = true;
+
+      pararAtualizacao();
+
+      mostrarStatus("Procurando usuário...");
+
+      const avatar = document.getElementById("canal-pfp");
+      const profileInfo = document.getElementById("profile-info");
+      const profileName = document.getElementById("profile-name");
+      const profileUsername = document.getElementById("profile-username");
+      const instagramLink = document.getElementById("instagramLink");
+
+      try {
+        /*
+         * Consulta o Mixerno e pega list[0].
+         */
+        const usuario = await buscarUsuarioInstagram(termo);
+
+        /*
+         * Guarda o username encontrado.
+         *
+         * Exemplo:
+         * termo digitado = leomessi
+         * resultado      = im.messian
+         *
+         * A Instastatistics será chamada como:
+         * https://instastatistics.com/api/user/im.messian
+         */
+        usuarioAtual = usuario.username;
+
+        if (!usuarioAtual) {
+          throw new Error(
+            "O primeiro resultado não possui username."
+          );
+        }
+
+        /*
+         * Avatar:
+         * usa list[0][1] do Mixerno.
+         */
+        if (usuario.avatar) {
+          avatar.src = usuario.avatar;
+          avatar.style.display = "block";
+
+          avatar.onerror = function() {
+            this.style.display = "none";
+          };
+        } else {
+          avatar.removeAttribute("src");
+          avatar.style.display = "none";
+        }
+
+        /*
+         * Nome e username:
+         * usam list[0][0] e list[0][2].
+         */
+        profileName.innerHTML = "";
+
+        const nomeTexto =
+          document.createTextNode(usuario.nome || usuarioAtual);
+
+        profileName.appendChild(nomeTexto);
+
+        profileUsername.textContent =
+          "@" + usuarioAtual;
+
+        profileInfo.style.display = "flex";
+
+        /*
+         * Link para o Instagram.
+         */
+        instagramLink.href =
+          "https://www.instagram.com/" +
+          encodeURIComponent(usuarioAtual) +
+          "/";
+
+        /*
+         * Zera o contador visual enquanto carrega o novo perfil.
+         */
+        if (odometerInstancia) {
+          odometerInstancia.update(0);
+        }
+
+        /*
+         * Primeira consulta imediatamente.
+         */
+        mostrarStatus(
+          "Carregando seguidores de @" +
+          usuarioAtual + "..."
+        );
+
+        await obterDadosInstastatistics();
+
+        /*
+         * Continua consultando a Instastatistics.
+         *
+         * A URL é montada dinamicamente com usuarioAtual.
+         */
+        intervaloId = setInterval(
+          obterDadosInstastatistics,
+          INTERVALO_ATUALIZACAO
+        );
+
+      } catch (erro) {
+        console.error("Erro ao pesquisar usuário:", erro);
+
+        usuarioAtual = "";
+
+        avatar.removeAttribute("src");
+        avatar.style.display = "none";
+
+        profileInfo.style.display = "none";
+
+        if (odometerInstancia) {
+          odometerInstancia.update(0);
+        }
+
+        mostrarStatus(
+          erro.message || "Usuário não encontrado.",
+          true
+        );
+
+      } finally {
+        buscaEmAndamento = false;
+      }
+    }
+
+    /*
+     * ============================================================
+     * EVENTOS
+     * ============================================================
+     */
+
+    document.addEventListener("DOMContentLoaded", function() {
+      inicializarOdometer();
+
+      const input = document.getElementById("input-id");
+      const searchButton = document.getElementById("search-button");
+
+      input.addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          mudarUsuario();
+        }
+      });
+
+      searchButton.addEventListener("click", mudarUsuario);
+
+      searchButton.addEventListener("keydown", function(event) {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          mudarUsuario();
+        }
+      });
+
+      /*
+       * Carrega automaticamente o usuário que estiver
+       * na caixa de pesquisa ao abrir a página.
+       */
+      mudarUsuario();
+    });
+
+    /*
+     * Se a página for fechada/recarregada, o intervalo
+     * é interrompido.
+     */
+    window.addEventListener("beforeunload", function() {
+      pararAtualizacao();
+    });
+  </script>
+
+</body>
+</html>
